@@ -2,7 +2,7 @@ package network
 
 import (
 	"fmt"
-	"pbft/consensus"
+	"pbft-impl-go/consensus"
 )
 
 const periodCheckPoint = 5

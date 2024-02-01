@@ -9,16 +9,16 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"pbft/network"
+	"pbft-impl-go/network"
 )
 
 // Hard-coded for test.
 var viewID = int64(10000000000)
 var nodeTableForTest = []*network.NodeInfo{
-	{NodeID: "Apple", Url: "localhost:1111"},
-	{NodeID: "MS", Url: "localhost:1112"},
-	{NodeID: "Google", Url: "localhost:1113"},
-	{NodeID: "IBM", Url: "localhost:1114"},
+	{NodeID: "Node1", Url: "localhost:49152"},
+	{NodeID: "Node2", Url: "localhost:49153"},
+	{NodeID: "Node3", Url: "localhost:49154"},
+	{NodeID: "Node4", Url: "localhost:49155"},
 }
 
 func PrivateKeyDecode(pemEncoded []byte) *ecdsa.PrivateKey {

@@ -10,7 +10,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"log"
-	"pbft/consensus"
+	"pbft-impl-go/consensus"
 	"time"
 )
 
@@ -74,7 +74,7 @@ func (server *Server) Start() {
 
 func (server *Server) DialOtherNodes() {
 	// Sleep until all nodes perform ListenAndServ().
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 30)
 
 	// Normal case.
 	var cReq = make(map[string]*websocket.Conn)

@@ -2,7 +2,7 @@ package network
 
 import (
 	"fmt"
-	"pbft/consensus"
+	"pbft-impl-go/consensus"
 	//"time"
 	"sync/atomic"
 	"unsafe"
@@ -159,7 +159,7 @@ func (node *Node) GetNewView(newviewMsg *consensus.NewViewMsg) error {
 		state, _ = node.getState(prePrepareMsg.SequenceID)
 		node.GetPrePrepareMsgs(state, prePrepareMsg)
 	}
-	*///
+	*/ //
 	// Accept messages usign MsgEntrance channel
 	node.IsViewChanging = false
 

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pbft.iml" filepath="$PROJECT_DIR$/.idea/pbft.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pbft-impl-go/.idea/pbft-impl-go.iml" filepath="$PROJECT_DIR$/../pbft-impl-go/.idea/pbft-impl-go.iml" />
     </modules>
   </component>
 </project>

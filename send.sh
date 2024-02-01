@@ -18,7 +18,7 @@ TOTALMSG=$2
 PERIOD=$3
 ADDR="$4/req"
 
-DUMMYPATH="/tmp/dummyload"
+DUMMYPATH="./tmp/dummyload"
 
 printf "${RED}Send $TOTALMSG dummy request messages ($DUMMYSIZE bytes for each) $PERIOD seconds to $ADDR${NC}\n"
 

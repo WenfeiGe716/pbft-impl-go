@@ -18,7 +18,7 @@ then
 fi
 
 TOTALNODE=$1
-NODELISTPATH="/tmp/node.list"
+NODELISTPATH="./tmp/node.list"
 LOGDATE=`date "+%F_%T"`
 LOGPATH="logs/$LOGDATE"
 
