@@ -4,10 +4,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"math/big"
-	"crypto/ecdsa"
-	"crypto/rand"
+	"pbft-impl-go/bls_impl"
 )
+
+var BLSMgr = bls_impl.NewBlsManager()
 
 func Hash(content []byte) string {
 	h := sha256.New()
@@ -25,24 +25,25 @@ func Digest(object interface{}) string {
 	return Hash(msg)
 }
 
-func Sign(privKey *ecdsa.PrivateKey, data []byte) (*big.Int, *big.Int, []byte, error) {
-	r := big.NewInt(0)
-	s := big.NewInt(0)
-	signHash := sha256.Sum256(data)
-
-	r, s, err := ecdsa.Sign(rand.Reader, privKey, signHash[:])
-
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	signature := r.Bytes()
-	signature = append(signature, s.Bytes()...)
-
-	return r, s, signature, nil
-}
-
-func Verify(pubKey *ecdsa.PublicKey, r, s *big.Int, data []byte) bool {
-	signHash := sha256.Sum256(data)
-	return ecdsa.Verify(pubKey, signHash[:], r, s)
-}
+//
+//func Sign(privKey bls_impl.SecretKey, data []byte) (*big.Int, *big.Int, []byte, error) {
+//	r := big.NewInt(0)
+//	s := big.NewInt(0)
+//	signHash := sha256.Sum256(data)
+//
+//	r, s, err := ecdsa.Sign(rand.Reader, privKey, signHash[:])
+//
+//	if err != nil {
+//		return nil, nil, nil, err
+//	}
+//
+//	signature := r.Bytes()
+//	signature = append(signature, s.Bytes()...)
+//
+//	return r, s, signature, nil
+//}
+//
+//func Verify(pubKey *ecdsa.PublicKey, r, s *big.Int, data []byte) bool {
+//	signHash := sha256.Sum256(data)
+//	return ecdsa.Verify(pubKey, signHash[:], r, s)
+//}

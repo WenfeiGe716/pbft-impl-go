@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 	"net/http"
 	"net/url"
+	"pbft-impl-go/bls_impl"
 
-	"crypto/ecdsa"
 	"encoding/json"
 	"log"
 	"pbft-impl-go/consensus"
@@ -17,9 +17,10 @@ import (
 type Server struct {
 	url  string
 	node *Node
+	mux  *http.ServeMux // 添加这一行
 }
 
-func NewServer(nodeID string, nodeTable []*NodeInfo, viewID int64, decodePrivKey *ecdsa.PrivateKey) *Server {
+func NewServer(nodeID string, nodeTable []*NodeInfo, viewID int64, decodePrivKey bls_impl.SecretKey) *Server {
 	nodeIdx := int(-1)
 	for idx, nodeInfo := range nodeTable {
 		if nodeInfo.NodeID == nodeID {
@@ -34,7 +35,7 @@ func NewServer(nodeID string, nodeTable []*NodeInfo, viewID int64, decodePrivKey
 	}
 
 	node := NewNode(nodeTable[nodeIdx], nodeTable, viewID, decodePrivKey)
-	server := &Server{nodeTable[nodeIdx].Url, node}
+	server := &Server{nodeTable[nodeIdx].Url, node, http.NewServeMux()}
 
 	// Normal case.
 	server.setRoute("/req")
@@ -56,7 +57,7 @@ func (server *Server) setRoute(path string) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(hub, w, r)
 	}
-	http.HandleFunc(path, handler)
+	server.mux.HandleFunc(path, handler)
 
 	go hub.run()
 }
@@ -66,7 +67,7 @@ func (server *Server) Start() {
 
 	go server.DialOtherNodes()
 
-	if err := http.ListenAndServe(server.url, nil); err != nil {
+	if err := http.ListenAndServe(server.url, server.mux); err != nil {
 		log.Println(err)
 		return
 	}
@@ -74,7 +75,7 @@ func (server *Server) Start() {
 
 func (server *Server) DialOtherNodes() {
 	// Sleep until all nodes perform ListenAndServ().
-	time.Sleep(time.Second * 30)
+	time.Sleep(time.Second * 10)
 
 	// Normal case.
 	var cReq = make(map[string]*websocket.Conn)
@@ -265,7 +266,7 @@ func (server *Server) sendDummyMsg() {
 	}
 }
 
-func broadcast(errCh chan<- error, url string, msg []byte, privKey *ecdsa.PrivateKey) {
+func broadcast(errCh chan<- error, url string, msg []byte, privKey bls_impl.SecretKey) {
 	sigMgsBytes := attachSignatureMsg(msg, privKey)
 	url = "ws://" + url // Fix using url.URL{}
 	c, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -284,25 +285,21 @@ func broadcast(errCh chan<- error, url string, msg []byte, privKey *ecdsa.Privat
 	errCh <- nil
 }
 
-func attachSignatureMsg(msg []byte, privKey *ecdsa.PrivateKey) []byte {
+func attachSignatureMsg(msg []byte, privKey bls_impl.SecretKey) []byte {
 	var sigMgs consensus.SignatureMsg
 	// msg signature
-	r, s, signature, err := consensus.Sign(privKey, msg)
-	if err == nil {
-		// setting SignatureMsg
-		sigMgs = consensus.SignatureMsg{
-			Signature:     signature,
-			R:             r,
-			S:             s,
-			MarshalledMsg: msg,
-		}
+	signature := privKey.Sign(msg)
+	// setting SignatureMsg
+	sigMgs = consensus.SignatureMsg{
+		Signature:     signature.Compress(),
+		MarshalledMsg: msg,
 	}
 	sigMgsBytes, _ := json.Marshal(sigMgs)
 
 	return sigMgsBytes
 }
 
-func deattachSignatureMsg(msg []byte, pubkey *ecdsa.PublicKey) ([]byte, error, bool) {
+func deattachSignatureMsg(msg []byte, pubkey bls_impl.PublicKey) ([]byte, error, bool) {
 	var sigMgs consensus.SignatureMsg
 	// unmarshal sigmsgs
 	err := json.Unmarshal(msg, &sigMgs)
@@ -310,8 +307,13 @@ func deattachSignatureMsg(msg []byte, pubkey *ecdsa.PublicKey) ([]byte, error, b
 		return nil, err, false
 	}
 	// msg VerifySignature
-	ok := consensus.Verify(pubkey, sigMgs.R, sigMgs.S, sigMgs.MarshalledMsg)
-	return sigMgs.MarshalledMsg, nil, ok
+	decodeSignature, err := consensus.BLSMgr.DecSignature(sigMgs.Signature.Bytes())
+	if err != nil {
+		log.Println(err)
+		return nil, err, false
+	}
+	err = pubkey.Verify(sigMgs.MarshalledMsg, decodeSignature)
+	return sigMgs.MarshalledMsg, err, err == nil
 }
 
 func dummyMsg(operation string, clientID string, data []byte) []byte {

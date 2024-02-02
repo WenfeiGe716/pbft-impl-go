@@ -3,18 +3,18 @@ package network
 import (
 	"encoding/json"
 	"fmt"
+	"pbft-impl-go/bls_impl"
 	"pbft-impl-go/consensus"
 	"time"
 	//"errors"
 	"context"
-	"crypto/ecdsa"
 	"sync"
 	"sync/atomic"
 )
 
 type Node struct {
 	MyInfo         *NodeInfo
-	PrivKey        *ecdsa.PrivateKey
+	PrivKey        bls_impl.SecretKey
 	NodeTable      []*NodeInfo
 	View           *View
 	States         map[int64]consensus.PBFT // key: sequenceID, value: state
@@ -47,7 +47,7 @@ type Node struct {
 type NodeInfo struct {
 	NodeID string `json:"nodeID"`
 	Url    string `json:"url"`
-	PubKey *ecdsa.PublicKey
+	PubKey bls_impl.PublicKey
 }
 
 type View struct {
@@ -81,7 +81,7 @@ const CoolingTotalErrMsg = 5
 // Number of outbound connection for a node.
 const MaxOutboundConnection = 1000
 
-func NewNode(myInfo *NodeInfo, nodeTable []*NodeInfo, viewID int64, decodePrivKey *ecdsa.PrivateKey) *Node {
+func NewNode(myInfo *NodeInfo, nodeTable []*NodeInfo, viewID int64, decodePrivKey bls_impl.SecretKey) *Node {
 	node := &Node{
 		MyInfo:         myInfo,
 		PrivKey:        decodePrivKey,

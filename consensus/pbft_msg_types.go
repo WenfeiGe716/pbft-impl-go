@@ -1,7 +1,7 @@
 package consensus
 
 import (
-	"math/big"
+	"pbft-impl-go/bls_impl"
 )
 
 // Messages are TOCS style.
@@ -23,9 +23,9 @@ type ReplyMsg struct {
 }
 
 type PrePrepareMsg struct {
-	ViewID     int64       `json:"viewID"`
-	SequenceID int64       `json:"sequenceID"`
-	Digest     string      `json:"digest"`
+	ViewID     int64  `json:"viewID"`
+	SequenceID int64  `json:"sequenceID"`
+	Digest     string `json:"digest"`
 }
 
 type VoteMsg struct {
@@ -33,10 +33,11 @@ type VoteMsg struct {
 	SequenceID int64  `json:"sequenceID"`
 	Digest     string `json:"digest"` // COMMIT message does not have digest
 	NodeID     string `json:"nodeID"`
-	MsgType           `json:"msgType"`
+	MsgType    `json:"msgType"`
 }
 
 type MsgType int
+
 const (
 	PrepareMsg MsgType = iota
 	CommitMsg
@@ -49,11 +50,11 @@ type CheckPointMsg struct {
 }
 
 type ViewChangeMsg struct {
-	NodeID     string `json:"nodeID"`
-	NextViewID int64  `json:"nextviewID"`
-	StableCheckPoint int64 `json:"stableCheckPoint"`
-	SetC map[string]*CheckPointMsg `json:"setC"`//C checkpointmsg_set 2f+1
-	SetP  map[int64]*SetPm	`json:"setP"`//SetP -> a set of preprepare + (preparemsg * 2f+1) from stablecheckpoint to the biggest sequence_num that node received
+	NodeID           string                    `json:"nodeID"`
+	NextViewID       int64                     `json:"nextviewID"`
+	StableCheckPoint int64                     `json:"stableCheckPoint"`
+	SetC             map[string]*CheckPointMsg `json:"setC"` //C checkpointmsg_set 2f+1
+	SetP             map[int64]*SetPm          `json:"setP"` //SetP -> a set of preprepare + (preparemsg * 2f+1) from stablecheckpoint to the biggest sequence_num that node received
 }
 
 type SetPm struct {
@@ -62,10 +63,10 @@ type SetPm struct {
 }
 
 type NewViewMsg struct {
-	NodeID     string `json:"nodeID"`
-	NextViewID int64  `json:"nextviewID"`
-	SetViewChangeMsgs map[string]*ViewChangeMsg `json:"setViewchangemsgs"` 	//V a set containing the valid ViewChageMsg 
-	SetPrePrepareMsgs map[int64]*PrePrepareMsg `json:"setPrepreparemsgs"`
+	NodeID            string                    `json:"nodeID"`
+	NextViewID        int64                     `json:"nextviewID"`
+	SetViewChangeMsgs map[string]*ViewChangeMsg `json:"setViewchangemsgs"` //V a set containing the valid ViewChageMsg
+	SetPrePrepareMsgs map[int64]*PrePrepareMsg  `json:"setPrepreparemsgs"`
 	//O a set of PrePrepareMsgs from latest stable checkpoint(min-s) in V to the highest sequence number(max-s) in a PrepareMsg in V
 	// new Primary creates a new PrePrepareMsg for view v+1 for each sequence number between min-s and max-s
 	Max_S int64 `json:"max_s"`
@@ -74,10 +75,7 @@ type NewViewMsg struct {
 
 type SignatureMsg struct {
 	// signature
-	Signature []byte `json:"signature"`
-	R *big.Int `json:"r"`
-	S *big.Int `json:"s"`
-
+	Signature bls_impl.CompressedSignature `json:"signature"`
 	// any consensus messages
 	MarshalledMsg []byte `json:"marshalledmsg"`
 }
