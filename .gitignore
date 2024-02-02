@@ -2,6 +2,7 @@
 tmp/
 
 go.mod
+go.sum
 
 keys/
 logs/
