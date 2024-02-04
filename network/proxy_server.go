@@ -1,5 +1,5 @@
 // TODO: secure connection such as HTTPS, or manual implementation
-// from Section 5.2.2 Key Exchanges on TOCS.
+
 package network
 
 import (
@@ -17,7 +17,7 @@ import (
 type Server struct {
 	url  string
 	node *Node
-	mux  *http.ServeMux // 添加这一行
+	mux  *http.ServeMux
 }
 
 func NewServer(nodeID string, nodeTable []*NodeInfo, viewID int64, decodePrivKey bls_impl.SecretKey) *Server {
@@ -75,7 +75,7 @@ func (server *Server) Start() {
 
 func (server *Server) DialOtherNodes() {
 	// Sleep until all nodes perform ListenAndServ().
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 3)
 
 	// Normal case.
 	var cReq = make(map[string]*websocket.Conn)
@@ -237,7 +237,7 @@ func (server *Server) sendDummyMsg() {
 	// is primary. (e.g., if the node index in the node table is 3,
 	// and current view ID is 1, the third dummy request message
 	// is sent from the current node.)
-	for {
+	for i := 1; i <= 1; i++ {
 		select {
 		case <-ticker.C:
 			// Send message from the current (changed) primary node.

@@ -422,7 +422,7 @@ func (node *Node) executeMsg() {
 		committedMsgs = make([]*consensus.RequestMsg, 0)
 
 		// if msg with sequence number n is already executed, skip to send a reply of the msg with n
-		var isExecuted bool = false
+		var isExecuted = false
 		for _, cmsg := range node.CommittedMsgs {
 			if cmsg.SequenceID == msgPair.committedMsg.SequenceID {
 				isExecuted = true
