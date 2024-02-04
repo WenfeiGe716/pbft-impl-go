@@ -137,6 +137,8 @@ func (node *Node) Broadcast(msg interface{}, path string) {
 		return
 	}
 
+	// 这里可以修改，向哪些节点发送消息
+
 	node.MsgOutbound <- &MsgOut{Path: node.MyInfo.Url + path, Msg: jsonMsg}
 }
 
